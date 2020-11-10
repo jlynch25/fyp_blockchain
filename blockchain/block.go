@@ -1,9 +1,11 @@
 package blockchain
 
+// BlockChain struct
 type BlockChain struct {
 	Blocks []*Block
 }
 
+// Block struct
 type Block struct {
 	Hash     []byte
 	Data     []byte
