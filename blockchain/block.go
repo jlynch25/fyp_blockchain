@@ -17,6 +17,7 @@ type Block struct {
 // 	b.Hash = hash[:]
 // }
 
+// CreateBlock function
 func CreateBlock(data string, prevHash []byte) *Block {
 	block := &Block{[]byte{}, []byte(data), prevHash, 0}
 	// block.DeriveHash()
@@ -30,16 +31,19 @@ func CreateBlock(data string, prevHash []byte) *Block {
 	return block
 }
 
+// AddBlock function
 func (chain *BlockChain) AddBlock(data string) {
 	prevBlock := chain.Blocks[len(chain.Blocks)-1]
 	new := CreateBlock(data, prevBlock.Hash)
 	chain.Blocks = append(chain.Blocks, new)
 }
 
+// Gensis function
 func Gensis() *Block {
 	return CreateBlock("Genesis", []byte{})
 }
 
+// InitBlockChain  function
 func InitBlockChain() *BlockChain {
 	return &BlockChain{[]*Block{Gensis()}}
 }
