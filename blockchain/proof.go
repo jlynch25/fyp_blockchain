@@ -10,13 +10,16 @@ import (
 	"math/big"
 )
 
-const Difficulty = 14 //static ATM
+// Difficulty static ATM
+const Difficulty = 14
 
+// ProofOfWork struct
 type ProofOfWork struct {
 	Block  *Block
 	Target *big.Int
 }
 
+// NewProof function
 func NewProof(b *Block) *ProofOfWork {
 	target := big.NewInt(1)
 	target.Lsh(target, uint(256-Difficulty)) // left shift
@@ -26,11 +29,12 @@ func NewProof(b *Block) *ProofOfWork {
 	return pow
 }
 
+// InitData function
 func (pow *ProofOfWork) InitData(nonce int) []byte {
 	data := bytes.Join(
 		[][]byte{
 			pow.Block.PrevHash,
-			pow.Block.Data,
+			pow.Block.HashTransaction(),
 			ToHex(int64(nonce)),
 			ToHex(int64(Difficulty)),
 		},
@@ -39,6 +43,7 @@ func (pow *ProofOfWork) InitData(nonce int) []byte {
 	return data
 }
 
+// Run function
 func (pow *ProofOfWork) Run() (int, []byte) {
 	var intHash big.Int
 	var hash [32]byte
@@ -63,6 +68,7 @@ func (pow *ProofOfWork) Run() (int, []byte) {
 	return nonce, hash[:]
 }
 
+// Validate function
 func (pow *ProofOfWork) Validate() bool {
 	var intHash big.Int
 
@@ -74,6 +80,7 @@ func (pow *ProofOfWork) Validate() bool {
 	return intHash.Cmp(pow.Target) == -1
 }
 
+// ToHex function
 func ToHex(num int64) []byte {
 	buff := new(bytes.Buffer)
 	err := binary.Write(buff, binary.BigEndian, num)
