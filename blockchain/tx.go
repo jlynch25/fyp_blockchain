@@ -2,6 +2,7 @@ package blockchain
 
 import (
 	"bytes"
+	"encoding/gob"
 
 	"github.com/jlynch25/golang-blockchain/wallet"
 )
@@ -12,20 +13,17 @@ type TxOutput struct {
 	PubKeyHash []byte
 }
 
+// TxOutputs struct
+type TxOutputs struct {
+	Outputs []TxOutput
+}
+
 // TxInput struct
 type TxInput struct {
 	ID        []byte
 	Out       int
 	Signature []byte
 	PubKey    []byte
-}
-
-// NewTxOutput function
-func NewTxOutput(value int, address string) *TxOutput {
-	txo := &TxOutput{value, nil}
-	txo.Lock([]byte(address))
-
-	return txo
 }
 
 // UsesKey function
@@ -45,4 +43,30 @@ func (out *TxOutput) Lock(address []byte) {
 // IsLockedWithKey function
 func (out *TxOutput) IsLockedWithKey(pubKeyHash []byte) bool {
 	return bytes.Compare(out.PubKeyHash, pubKeyHash) == 0
+}
+
+// NewTxOutput function
+func NewTxOutput(value int, address string) *TxOutput {
+	txo := &TxOutput{value, nil}
+	txo.Lock([]byte(address))
+
+	return txo
+}
+
+// Serialize function
+func (outs TxOutputs) Serialize() []byte {
+	var buffer bytes.Buffer
+	encoder := gob.NewEncoder(&buffer)
+	err := encoder.Encode(outs)
+	Handle(err)
+	return buffer.Bytes()
+}
+
+// DeserializeOutputs function
+func DeserializeOutputs(data []byte) TxOutputs {
+	var outputs TxOutputs
+	decoder := gob.NewDecoder(bytes.NewReader(data))
+	err := decoder.Decode(&outputs)
+	Handle(err)
+	return outputs
 }

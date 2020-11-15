@@ -15,19 +15,13 @@ type Block struct {
 	Nonce        int
 }
 
-// func (b *Block) DeriveHash() {
-// 	info := bytes.Join([][]byte{b.Data, b.PrevHash}, []byte{})
-// 	hash := sha256.Sum256(info)
-// 	b.Hash = hash[:]
-// }
-
-// HashTransaction function
-func (b *Block) HashTransaction() []byte {
+// HashTransactions function
+func (b *Block) HashTransactions() []byte {
 	var txHashes [][]byte
 	var txHash [32]byte
 
 	for _, tx := range b.Transactions {
-		txHashes = append(txHashes, tx.ID)
+		txHashes = append(txHashes, tx.Hash())
 	}
 	txHash = sha256.Sum256(bytes.Join(txHashes, []byte{}))
 
@@ -37,7 +31,6 @@ func (b *Block) HashTransaction() []byte {
 // CreateBlock function
 func CreateBlock(txs []*Transaction, prevHash []byte) *Block {
 	block := &Block{[]byte{}, txs, prevHash, 0}
-	// block.DeriveHash()
 
 	pow := NewProof(block)
 	nonce, hash := pow.Run()
