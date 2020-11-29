@@ -44,7 +44,7 @@ func ContinueBlockChain(nodeID string) *BlockChain {
 
 	var lastHash []byte
 
-	db, err := openDB(path, badger.DefaultOptions(dbPath))
+	db, err := openDB(path, badger.DefaultOptions(path))
 	Handle(err)
 
 	err = db.Update(func(txn *badger.Txn) error {
@@ -65,12 +65,13 @@ func ContinueBlockChain(nodeID string) *BlockChain {
 func InitBlockChain(address, nodeID string) *BlockChain {
 	var lastHash []byte
 	path := fmt.Sprintf(dbPath, nodeID)
+	fmt.Printf("path: %s\n", path)
 	if DBexists(path) {
 		fmt.Println(" BLockchain already exists")
 		runtime.Goexit()
 	}
 
-	db, err := openDB(path, badger.DefaultOptions(dbPath))
+	db, err := openDB(path, badger.DefaultOptions(path))
 	Handle(err)
 
 	err = db.Update(func(txn *badger.Txn) error {
