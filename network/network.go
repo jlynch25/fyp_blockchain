@@ -205,7 +205,7 @@ func HandleAddr(request []byte) {
 	Handle(err)
 	KnownNodes = append(KnownNodes, payload.AddrList...)
 	fmt.Printf("there are %d known nodes\n", len(KnownNodes))
-	RequestBlock() //TODO - create requestblock function
+	RequestBlocks()
 
 }
 
@@ -326,7 +326,7 @@ func HandleTx(request []byte, chain *blockchain.BlockChain) {
 	Handle(err)
 
 	txData := payload.Transaction
-	tx := blockchain.DeserializeTransactions(txData)
+	tx := blockchain.DeserializeTransaction(txData)
 	memoryPool[hex.EncodeToString(tx.ID)] = tx
 
 	fmt.Printf("%s, %d\n", nodeAddress, len(memoryPool))
