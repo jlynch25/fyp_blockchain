@@ -1,5 +1,3 @@
 
 tmp/
-badgerDB/
-go.mod
-go.sum
+.vscode/
