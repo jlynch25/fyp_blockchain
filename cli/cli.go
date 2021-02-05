@@ -4,15 +4,17 @@ import (
 	"flag"
 	"fmt"
 	"log"
+	"net"
 	"os"
 	"runtime"
 	"strconv"
 
 	"github.com/jlynch25/golang-blockchain/blockchain"
-	"github.com/jlynch25/golang-blockchain/network"
+	network "github.com/jlynch25/golang-blockchain/noise_network"
 	"github.com/jlynch25/golang-blockchain/wallet"
 )
 
+// CommandLine struct
 type CommandLine struct{}
 
 func (cli *CommandLine) printUsage() {
@@ -34,6 +36,7 @@ func (cli *CommandLine) validateArgs() {
 	}
 }
 
+// StartNode function
 func (cli *CommandLine) StartNode(nodeID, minerAddress string) {
 	fmt.Printf("Starting Node %s\n", nodeID)
 
@@ -44,7 +47,19 @@ func (cli *CommandLine) StartNode(nodeID, minerAddress string) {
 			log.Panic("Wrong miner address!")
 		}
 	}
-	network.StartServer(nodeID, minerAddress)
+	// network.StartServer(nodeID, minerAddress)
+
+	host := net.ParseIP("2001:bb6:4ba7:bd58:1cfd:d24c:82aa:834")
+	address := ""
+	port, err := strconv.Atoi(nodeID)
+	network.HandleError(err)
+	bootstrapAddresses := []string{}
+	fmt.Printf("NODEID @ startnode %s\n", nodeID)
+	fmt.Printf("uint16(port) @ startnode %v\n", uint16(port))
+	if nodeID != "3000" {
+		bootstrapAddresses = []string{"[2001:bb6:4ba7:bd58:1cfd:d24c:82aa:834]:3000"}
+	}
+	network.StartServer(host, uint16(port), address, minerAddress, bootstrapAddresses)
 }
 
 func (cli *CommandLine) reindexUTXO(nodeID string) {
@@ -155,7 +170,7 @@ func (cli *CommandLine) send(from, to string, amount int, nodeID string, mineNow
 		block := chain.MineBlock(txs)
 		UTXOSet.Update(block)
 	} else {
-		network.SendTx(network.KnownNodes[0], tx)
+		network.SendTx(network.Node.ID().Address, tx) // FIXME - replace node.ID... with a mining bucket kademlia
 		fmt.Println("send tx")
 	}
 
