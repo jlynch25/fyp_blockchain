@@ -413,7 +413,7 @@ func HandleTx(request []byte) {
 
 	fmt.Printf("%s, %d\n", node.ID().Address, len(memoryPool))
 
-	if node.ID().Address == Overlay.Table().Peers()[0].Address {
+	if node.ID().Address == Overlay.Table().Peers()[0].Address { //FIXME - look into
 		for _, id := range Overlay.Table().Peers() {
 			if id.Address != node.ID().Address && id.Address != payload.AddrFrom {
 				SendInv(id.Address, "tx", [][]byte{tx.ID})
