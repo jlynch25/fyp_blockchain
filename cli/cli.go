@@ -4,7 +4,6 @@ import (
 	"flag"
 	"fmt"
 	"log"
-	"net"
 	"os"
 	"runtime"
 	"strconv"
@@ -37,7 +36,7 @@ func (cli *CommandLine) validateArgs() {
 }
 
 // StartNode function
-func (cli *CommandLine) StartNode(nodeID, minerAddress string) {
+func (cli *CommandLine) StartNode(nodeID, minerAddress string) { // TODO - allow for bootstrap Addresses as extra params (no flag) or with a flagh but allow for multiple addresses
 	fmt.Printf("Starting Node %s\n", nodeID)
 
 	if len(minerAddress) > 0 {
@@ -49,13 +48,12 @@ func (cli *CommandLine) StartNode(nodeID, minerAddress string) {
 	}
 	// network.StartServer(nodeID, minerAddress)
 
-	host := net.ParseIP("2001:bb6:4ba7:bd58:1cfd:d24c:82aa:834")
+	host, err := network.ExternalIP()
+	network.HandleError(err)
 	address := ""
 	port, err := strconv.Atoi(nodeID)
 	network.HandleError(err)
 	bootstrapAddresses := []string{}
-	fmt.Printf("NODEID @ startnode %s\n", nodeID)
-	fmt.Printf("uint16(port) @ startnode %v\n", uint16(port))
 	if nodeID != "3000" {
 		bootstrapAddresses = []string{"[2001:bb6:4ba7:bd58:1cfd:d24c:82aa:834]:3000"}
 	}
@@ -170,7 +168,7 @@ func (cli *CommandLine) send(from, to string, amount int, nodeID string, mineNow
 		block := chain.MineBlock(txs)
 		UTXOSet.Update(block)
 	} else {
-		network.SendTx(network.Overlay.Table().Peers()[0].Address, tx) // FIXME - replace Overlay.Table().Peers()[0].Address... with a mining bucket kademlia ??
+		network.SendTx(network.Overlay.Table().Peers()[0].Address, tx) // FIXME possibly - replace Overlay.Table().Peers()[0].Address... with a mining bucket kademlia ??
 		fmt.Println("send tx")
 	}
 
