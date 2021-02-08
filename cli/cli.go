@@ -170,7 +170,7 @@ func (cli *CommandLine) send(from, to string, amount int, nodeID string, mineNow
 		block := chain.MineBlock(txs)
 		UTXOSet.Update(block)
 	} else {
-		network.SendTx(network.Node.ID().Address, tx) // FIXME - replace node.ID... with a mining bucket kademlia
+		network.SendTx(network.Overlay.Table().Peers()[0].Address, tx) // FIXME - replace Overlay.Table().Peers()[0].Address... with a mining bucket kademlia ??
 		fmt.Println("send tx")
 	}
 
