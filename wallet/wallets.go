@@ -54,6 +54,9 @@ func (ws *Wallets) GetWallet(address string) Wallet {
 
 // LoadFile function
 func (ws *Wallets) LoadFile(nodeID string) error {
+	if _, err := os.Stat("tmp"); os.IsNotExist(err) {
+		os.Mkdir("tmp", 0755)
+	}
 	walletFile := fmt.Sprintf(walletFile, nodeID)
 	if _, err := os.Stat(walletFile); os.IsNotExist(err) {
 		return err
