@@ -29,8 +29,8 @@ const (
 )
 
 var (
-	// node the current user
-	node *noise.Node
+	// Node the current user
+	Node *noise.Node
 	// the current blockchain
 	chain *blockchain.BlockChain
 	// Overlay is the main pool of peers
@@ -104,6 +104,8 @@ func StartServer(hostFlag net.IP, portFlag uint16, addressFlag, minerAddress str
 	// Release resources associated to Node at the end of the program.
 	defer node.Close()
 
+	Node = node
+
 	minerAddress = minerAddress
 
 	chain = blockchain.ContinueBlockChain(fmt.Sprint(portFlag)) //FIXME Node.ID().Port??? //uint16 to string
@@ -164,7 +166,7 @@ func RequestBlocks() {
 
 // SendBlock function
 func SendBlock(addr string, b *blockchain.Block) {
-	data := Block{node.ID().Address, b.Serialize()}
+	data := Block{Node.ID().Address, b.Serialize()}
 	payload := GobEncode(data)
 	request := commandMessage{cmdType: "block", contents: payload}
 
@@ -173,7 +175,7 @@ func SendBlock(addr string, b *blockchain.Block) {
 
 // SendInv function
 func SendInv(address, kind string, items [][]byte) {
-	inventory := Inv{node.ID().Address, kind, items}
+	inventory := Inv{Node.ID().Address, kind, items}
 	payload := GobEncode(inventory)
 	request := commandMessage{cmdType: "inv", contents: payload}
 
@@ -182,7 +184,7 @@ func SendInv(address, kind string, items [][]byte) {
 
 // SendTx function
 func SendTx(addr string, tnx *blockchain.Transaction) {
-	data := Tx{node.ID().Address, tnx.Serialize()}
+	data := Tx{Node.ID().Address, tnx.Serialize()}
 	payload := GobEncode(data)
 	request := commandMessage{cmdType: "tx", contents: payload}
 
@@ -192,14 +194,14 @@ func SendTx(addr string, tnx *blockchain.Transaction) {
 // SendVersion function
 func SendVersion(addr string, chain *blockchain.BlockChain) {
 	bestHeight := chain.GetBestHeight()
-	payload := GobEncode(Version{version, bestHeight, node.ID().Address})
+	payload := GobEncode(Version{version, bestHeight, Node.ID().Address})
 	request := commandMessage{cmdType: "version", contents: payload}
 	SendDataToOne(addr, request)
 }
 
 // SendGetBlocks function
 func SendGetBlocks(address string) {
-	payload := GobEncode(GetBlocks{node.ID().Address})
+	payload := GobEncode(GetBlocks{Node.ID().Address})
 	request := commandMessage{cmdType: "getblocks", contents: payload}
 
 	SendDataToOne(address, request)
@@ -207,7 +209,7 @@ func SendGetBlocks(address string) {
 
 // SendGetData function
 func SendGetData(address, kind string, id []byte) {
-	payload := GobEncode(GetData{node.ID().Address, kind, id})
+	payload := GobEncode(GetData{Node.ID().Address, kind, id})
 	request := commandMessage{cmdType: "getdata", contents: payload}
 
 	SendDataToOne(address, request)
@@ -218,7 +220,7 @@ func SendData(addr string, msg noise.Serializable) {
 	for _, id := range Overlay.Table().Peers() {
 		if id.Address != addr {
 			ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
-			err := node.SendMessage(ctx, id.Address, msg)
+			err := Node.SendMessage(ctx, id.Address, msg)
 			cancel()
 
 			if err != nil {
@@ -236,7 +238,7 @@ func SendData(addr string, msg noise.Serializable) {
 // SendDataToOne function
 func SendDataToOne(addr string, msg noise.Serializable) {
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
-	err := node.SendMessage(ctx, addr, msg)
+	err := Node.SendMessage(ctx, addr, msg)
 	cancel()
 
 	if err != nil {
@@ -411,11 +413,11 @@ func HandleTx(request []byte) {
 	tx := blockchain.DeserializeTransaction(txData)
 	memoryPool[hex.EncodeToString(tx.ID)] = tx
 
-	fmt.Printf("%s, %d\n", node.ID().Address, len(memoryPool))
+	fmt.Printf("%s, %d\n", Node.ID().Address, len(memoryPool))
 
-	if node.ID().Address == Overlay.Table().Peers()[0].Address { //FIXME - look into
+	if Node.ID().Address == Overlay.Table().Peers()[0].Address { //FIXME - look into
 		for _, id := range Overlay.Table().Peers() {
-			if id.Address != node.ID().Address && id.Address != payload.AddrFrom {
+			if id.Address != Node.ID().Address && id.Address != payload.AddrFrom {
 				SendInv(id.Address, "tx", [][]byte{tx.ID})
 			}
 		}
@@ -458,7 +460,7 @@ func MineTx() {
 	}
 
 	for _, id := range Overlay.Table().Peers() {
-		if id.Address != node.ID().Address {
+		if id.Address != Node.ID().Address {
 			SendInv(id.Address, "block", [][]byte{newBlock.Hash})
 		}
 	}

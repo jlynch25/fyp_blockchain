@@ -54,8 +54,9 @@ func (cli *CommandLine) StartNode(nodeID, minerAddress string) { // TODO - allow
 	port, err := strconv.Atoi(nodeID)
 	network.HandleError(err)
 	bootstrapAddresses := []string{}
-	if nodeID != "3000" {
-		bootstrapAddresses = []string{"[2001:bb6:4ba7:bd58:1cfd:d24c:82aa:834]:3000"}
+	// FIXME - temp server node .. always connected .. needed for other to join the network. (bootstrap)
+	if nodeID != "4000" {
+		bootstrapAddresses = []string{"[2a02:8084:a5bf:f680:1cfd:d24c:82aa:834]:4000"}
 	}
 	network.StartServer(host, uint16(port), address, minerAddress, bootstrapAddresses)
 }

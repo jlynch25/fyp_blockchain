@@ -36,6 +36,9 @@ func DBexists(path string) bool {
 
 // ContinueBlockChain function
 func ContinueBlockChain(nodeID string) *BlockChain {
+	if _, err := os.Stat("tmp"); os.IsNotExist(err) {
+		os.Mkdir("tmp", 0755)
+	}
 	path := fmt.Sprintf(dbPath, nodeID)
 	if DBexists(path) == false {
 		fmt.Println("No existing blockchain found, create one!")
