@@ -47,10 +47,11 @@ func (pow *ProofOfWork) InitData(nonce int) []byte {
 func (pow *ProofOfWork) Run() (int, []byte) {
 	var intHash big.Int
 	var hash [32]byte
+	var maxInt int64 = math.MaxInt64
 
 	nonce := 0
 
-	for nonce < math.MaxInt64 {
+	for int64(nonce) < maxInt {
 		data := pow.InitData(nonce)
 		hash = sha256.Sum256(data)
 
