@@ -9,7 +9,8 @@ import (
 	"os"
 )
 
-const walletFile = "./tmp/wallets_%s.data"
+const basePath = "/data/data/com.github.jlynch25.mylib_example/files"
+const walletFile = basePath+"/tmp/wallets_%s.data"
 
 // Wallets struct
 type Wallets struct {
@@ -54,8 +55,9 @@ func (ws *Wallets) GetWallet(address string) Wallet {
 
 // LoadFile function
 func (ws *Wallets) LoadFile(nodeID string) error {
-	if _, err := os.Stat("tmp"); os.IsNotExist(err) {
-		os.Mkdir("tmp", 0755)
+	if _, err := os.Stat(basePath+"tmp"); os.IsNotExist(err) {
+		// os.Mkdir("tmp", 0755)
+		os.Create(basePath+"tmp")
 	}
 	walletFile := fmt.Sprintf(walletFile, nodeID)
 	if _, err := os.Stat(walletFile); os.IsNotExist(err) {
@@ -87,6 +89,7 @@ func (ws *Wallets) SaveFile(nodeID string) {
 	err := encoder.Encode(ws)
 	Handle(err)
 
+	os.Create(walletFile)
 	err = ioutil.WriteFile(walletFile, content.Bytes(), 0644)
 	Handle(err)
 }

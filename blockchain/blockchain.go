@@ -13,10 +13,12 @@ import (
 	"strings"
 
 	"github.com/dgraph-io/badger"
+	"github.com/dgraph-io/badger/options"
 )
 
 const (
-	dbPath      = "./tmp/blocks_%s"
+	basePath    = "/data/data/com.github.jlynch25.mylib_example/files"
+	dbPath      = basePath + "/tmp/blocks_%s"
 	genesisData = "First Transaction from Genesis"
 )
 
@@ -36,8 +38,8 @@ func DBexists(path string) bool {
 
 // ContinueBlockChain function
 func ContinueBlockChain(nodeID string) *BlockChain {
-	if _, err := os.Stat("tmp"); os.IsNotExist(err) {
-		os.Mkdir("tmp", 0755)
+	if _, err := os.Stat(basePath + "tmp"); os.IsNotExist(err) {
+		os.Mkdir(basePath+"tmp", 0755)
 	}
 	path := fmt.Sprintf(dbPath, nodeID)
 	if DBexists(path) == false {
@@ -48,6 +50,7 @@ func ContinueBlockChain(nodeID string) *BlockChain {
 	var lastHash []byte
 
 	opts := badger.DefaultOptions(path)
+	opts.ValueLogLoadingMode = options.FileIO
 	opts.Logger = nil
 
 	db, err := openDB(path, opts)
@@ -77,7 +80,11 @@ func InitBlockChain(address, nodeID string) *BlockChain {
 		runtime.Goexit()
 	}
 
-	db, err := openDB(path, badger.DefaultOptions(path))
+	opts := badger.DefaultOptions(path)
+	opts.ValueLogLoadingMode = options.FileIO
+	opts.Logger = nil
+
+	db, err := openDB(path, opts)
 	Handle(err)
 
 	err = db.Update(func(txn *badger.Txn) error {
