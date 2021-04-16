@@ -106,11 +106,11 @@ func StartServer(hostFlag net.IP, portFlag uint16, addressFlag, minerAddress str
 
 	Node = node
 
-	minerAddress = minerAddress
+	minerAddress = minerAddress //TODO - miners pool
 
-	chain = blockchain.ContinueBlockChain(fmt.Sprint(portFlag)) //FIXME Node.ID().Port??? //uint16 to string
-	defer chain.Database.Close()
-	go CloseDB(chain)
+	// chain = blockchain.ContinueBlockChain(fmt.Sprint(portFlag)) //FIXME Node.ID().Port??? //uint16 to string
+	// defer chain.Database.Close()
+	// go CloseDB(chain)
 
 	// Register the X/Y/Z Go type to the Node with an associated unmarshal function.
 	node.RegisterMessage(commandMessage{}, unmarshalCommandMessage)
@@ -149,7 +149,7 @@ func StartServer(hostFlag net.IP, portFlag uint16, addressFlag, minerAddress str
 	peers := Overlay.Table().Peers()
 	if len(peers) > 0 {
 		// TODO - ping node to check if its accessable, if not move on to next closest peers[1]
-		SendVersion(peers[0].Address, chain)
+		// SendVersion(peers[0].Address, chain)
 	}
 
 	WaitForCtrlC()

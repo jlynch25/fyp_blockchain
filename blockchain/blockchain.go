@@ -14,11 +14,13 @@ import (
 
 	"github.com/dgraph-io/badger"
 	"github.com/dgraph-io/badger/options"
+	// network "github.com/jlynch25/golang-blockchain/noise_network"
 )
 
 const (
-	basePath    = "/data/data/com.github.jlynch25.mylib_example/files"
-	dbPath      = basePath + "/tmp/blocks_%s"
+	basePath = "/data/data/com.github.jlynch25.mylib_example/files"
+	// basePath    = "/Internal storage/storage/emulated/0"
+	dbPath      = basePath + "/tmp/blocks_%s/"
 	genesisData = "First Transaction from Genesis"
 )
 
@@ -44,6 +46,9 @@ func ContinueBlockChain(nodeID string) *BlockChain {
 	path := fmt.Sprintf(dbPath, nodeID)
 	if DBexists(path) == false {
 		fmt.Println("No existing blockchain found, create one!")
+		// TODO - get blockchaiin files
+		// network.RequestDownload()
+
 		runtime.Goexit()
 	}
 

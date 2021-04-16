@@ -3,6 +3,8 @@ package theBlockchain
 import (
 	"fmt"
 	"log"
+
+	// "runtime/debug"
 	"strconv"
 
 	"github.com/jlynch25/golang-blockchain/blockchain"
@@ -10,9 +12,15 @@ import (
 	"github.com/jlynch25/golang-blockchain/wallet"
 )
 
-
 // FIXME
-func StartNode(nodeID, minerAddress string) { // TODO - allow for bootstrap Addresses as extra params (no flag) or with a flagh but allow for multiple addresses
+func StartNode(nodeID, minerAddress string) (output string) { // TODO - allow for bootstrap Addresses as extra params (no flag) or with a flagh but allow for multiple addresses
+
+	defer func() {
+		if err := recover(); err != nil {
+			log.Println(err)
+			output = fmt.Sprintf("%v", err)
+		}
+	}()
 
 	fmt.Printf("Starting Node %s\n", nodeID)
 
@@ -33,12 +41,22 @@ func StartNode(nodeID, minerAddress string) { // TODO - allow for bootstrap Addr
 	bootstrapAddresses := []string{}
 	// FIXME - temp server node .. always connected .. needed for other to join the network. (bootstrap)
 	if nodeID != "4000" {
-		bootstrapAddresses = []string{"[2a02:8084:a5bf:f680:1cfd:d24c:82aa:834]:4000"}
+		bootstrapAddresses = []string{"[2a02:8084:a5bf:f680:1cfd:d24c:82aa:834]:2000"} //[]string{"[2a02:8084:a5bf:f680:1cfd:d24c:82aa:834]:4000"}
 	}
 	network.StartServer(host, uint16(port), address, minerAddress, bootstrapAddresses)
+
+	return "Success!"
 }
 
-func ReindexUTXO(nodeID string) string {
+func ReindexUTXO(nodeID string) (output string) {
+
+	defer func() {
+		if err := recover(); err != nil {
+			log.Println(err)
+			output = fmt.Sprintf("%v", err)
+		}
+	}()
+
 	chain := blockchain.ContinueBlockChain(nodeID)
 	defer chain.Database.Close()
 	UTXOSet := blockchain.UTXOSet{chain}
@@ -48,7 +66,15 @@ func ReindexUTXO(nodeID string) string {
 	return ("Done! There are " + strconv.Itoa(count) + " transactions in the UTXO set.")
 }
 
-func ListAddresses(nodeID string) string {
+func ListAddresses(nodeID string) (output string) {
+
+	defer func() {
+		if err := recover(); err != nil {
+			log.Println(err)
+			output = fmt.Sprintf("%v", err)
+		}
+	}()
+
 	wallets, _ := wallet.CreateWallets(nodeID)
 	addresses := wallets.GetAllAddresses()
 
@@ -61,17 +87,31 @@ func ListAddresses(nodeID string) string {
 	return result
 }
 
-func CreateWallet(nodeID string) string {
+func CreateWallet(nodeID string) (output string) {
+
+	defer func() {
+		if err := recover(); err != nil {
+			log.Println(err)
+			output = fmt.Sprintf("%v", err)
+		}
+	}()
+
 	wallets, _ := wallet.CreateWallets(nodeID)
 	address := wallets.AddWallet()
 	wallets.SaveFile(nodeID)
 
-	result := "New address is: " + address
-
-	return result
+	return address
 }
 
-func PrintChain(nodeID string) string {
+func PrintChain(nodeID string) (output string) {
+
+	defer func() {
+		if err := recover(); err != nil {
+			log.Println(err)
+			output = fmt.Sprintf("%v", err)
+		}
+	}()
+
 	chain := blockchain.ContinueBlockChain(nodeID)
 	defer chain.Database.Close()
 	iter := chain.Iterator()
@@ -97,7 +137,15 @@ func PrintChain(nodeID string) string {
 	return result
 }
 
-func CreateBlockChain(address, nodeID string) string {
+func CreateBlockChain(address, nodeID string) (output string) {
+
+	defer func() {
+		if err := recover(); err != nil {
+			log.Println(err)
+			output = fmt.Sprintf("%v", err)
+		}
+	}()
+
 	if !wallet.ValidateAddress(address) {
 		return ("Address is not Valid")
 	}
@@ -110,7 +158,15 @@ func CreateBlockChain(address, nodeID string) string {
 	return ("Finished!")
 }
 
-func GetBalance(address, nodeID string) string {
+func GetBalance(address, nodeID string) (output string) {
+
+	defer func() {
+		if err := recover(); err != nil {
+			log.Println(err)
+			output = fmt.Sprintf("%v", err)
+		}
+	}()
+
 	if !wallet.ValidateAddress(address) {
 		return ("Address is not Valid")
 	}
@@ -130,7 +186,14 @@ func GetBalance(address, nodeID string) string {
 	return strconv.Itoa(balance)
 }
 
-func Send(from, to string, amount int, nodeID string, mineNow bool) string {
+func Send(from, to string, amount int, nodeID string, mineNow bool) (output string) {
+	defer func() {
+		if err := recover(); err != nil {
+			log.Println(err)
+			output = fmt.Sprintf("%v", err)
+		}
+	}()
+
 	if !wallet.ValidateAddress(to) {
 		return ("Address is not Valid")
 	}

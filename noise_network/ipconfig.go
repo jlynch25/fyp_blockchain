@@ -3,6 +3,7 @@ package noisenetwork
 import (
 	"errors"
 	"net"
+	"strings"
 )
 
 // ExternalIP function - returns the users IPv6 address
@@ -33,7 +34,9 @@ func ExternalIP() (net.IP, error) {
 			if ip == nil || ip.IsLoopback() {
 				continue
 			}
-			return ip, nil
+			if strings.Contains(ip.String(), ":") {
+				return ip, nil
+			}
 		}
 	}
 	return nil, errors.New("not connected to a network")

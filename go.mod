@@ -13,6 +13,8 @@ require (
 	// golang.org/x/mobile/app v0.0.0-20200801112145-973feb4309de // indirect
 	golang.org/x/sys v0.0.0-20210124154548-22da62e12c0c // indirect
 	golang.org/x/tools v0.0.0-20201116002733-ac45abd4c88c // indirect
+	google.golang.org/grpc v1.36.1
+	google.golang.org/protobuf v1.25.0
 	gopkg.in/vrecan/death.v3 v3.0.1
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 )
