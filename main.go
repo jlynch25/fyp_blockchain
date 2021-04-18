@@ -13,7 +13,7 @@ import (
 )
 
 // FIXME
-func StartNode(nodeID, minerAddress string) (output string) { // TODO - allow for bootstrap Addresses as extra params (no flag) or with a flagh but allow for multiple addresses
+func StartNode(nodeID, minerAddress, basePath string) (output string) { // TODO - allow for bootstrap Addresses as extra params (no flag) or with a flagh but allow for multiple addresses
 
 	defer func() {
 		if err := recover(); err != nil {
@@ -43,12 +43,12 @@ func StartNode(nodeID, minerAddress string) (output string) { // TODO - allow fo
 	if nodeID != "4000" {
 		bootstrapAddresses = []string{"[2a02:8084:a5bf:f680:1cfd:d24c:82aa:834]:2000"} //[]string{"[2a02:8084:a5bf:f680:1cfd:d24c:82aa:834]:4000"}
 	}
-	network.StartServer(host, uint16(port), address, minerAddress, bootstrapAddresses)
+	network.StartServer(host, uint16(port), address, minerAddress, basePath, bootstrapAddresses)
 
 	return "Success!"
 }
 
-func ReindexUTXO(nodeID string) (output string) {
+func ReindexUTXO(nodeID, basePath string) (output string) {
 
 	defer func() {
 		if err := recover(); err != nil {
@@ -57,16 +57,16 @@ func ReindexUTXO(nodeID string) (output string) {
 		}
 	}()
 
-	chain := blockchain.ContinueBlockChain(nodeID)
+	chain := blockchain.ContinueBlockChain(nodeID, basePath)
 	defer chain.Database.Close()
-	UTXOSet := blockchain.UTXOSet{chain}
+	UTXOSet := blockchain.UTXOSet{Blockchain: chain}
 	UTXOSet.Reindex()
 
 	count := UTXOSet.CountTransactions()
 	return ("Done! There are " + strconv.Itoa(count) + " transactions in the UTXO set.")
 }
 
-func ListAddresses(nodeID string) (output string) {
+func ListAddresses(nodeID, basePath string) (output string) {
 
 	defer func() {
 		if err := recover(); err != nil {
@@ -75,7 +75,7 @@ func ListAddresses(nodeID string) (output string) {
 		}
 	}()
 
-	wallets, _ := wallet.CreateWallets(nodeID)
+	wallets, _ := wallet.CreateWallets(nodeID, basePath)
 	addresses := wallets.GetAllAddresses()
 
 	result := " "
@@ -87,7 +87,7 @@ func ListAddresses(nodeID string) (output string) {
 	return result
 }
 
-func CreateWallet(nodeID string) (output string) {
+func CreateWallet(nodeID, basePath string) (output string) {
 
 	defer func() {
 		if err := recover(); err != nil {
@@ -96,14 +96,14 @@ func CreateWallet(nodeID string) (output string) {
 		}
 	}()
 
-	wallets, _ := wallet.CreateWallets(nodeID)
+	wallets, _ := wallet.CreateWallets(nodeID, basePath)
 	address := wallets.AddWallet()
-	wallets.SaveFile(nodeID)
+	wallets.SaveFile(nodeID, basePath)
 
 	return address
 }
 
-func PrintChain(nodeID string) (output string) {
+func PrintChain(nodeID, basePath string) (output string) {
 
 	defer func() {
 		if err := recover(); err != nil {
@@ -112,7 +112,7 @@ func PrintChain(nodeID string) (output string) {
 		}
 	}()
 
-	chain := blockchain.ContinueBlockChain(nodeID)
+	chain := blockchain.ContinueBlockChain(nodeID, basePath)
 	defer chain.Database.Close()
 	iter := chain.Iterator()
 
@@ -137,7 +137,7 @@ func PrintChain(nodeID string) (output string) {
 	return result
 }
 
-func CreateBlockChain(address, nodeID string) (output string) {
+func CreateBlockChain(address, nodeID, basePath string) (output string) {
 
 	defer func() {
 		if err := recover(); err != nil {
@@ -149,16 +149,16 @@ func CreateBlockChain(address, nodeID string) (output string) {
 	if !wallet.ValidateAddress(address) {
 		return ("Address is not Valid")
 	}
-	chain := blockchain.InitBlockChain(address, nodeID)
+	chain := blockchain.InitBlockChain(address, nodeID, basePath)
 	defer chain.Database.Close()
 
-	UTXOSet := blockchain.UTXOSet{chain}
+	UTXOSet := blockchain.UTXOSet{Blockchain: chain}
 	UTXOSet.Reindex()
 
 	return ("Finished!")
 }
 
-func GetBalance(address, nodeID string) (output string) {
+func GetBalance(address, nodeID, basePath string) (output string) {
 
 	defer func() {
 		if err := recover(); err != nil {
@@ -170,8 +170,8 @@ func GetBalance(address, nodeID string) (output string) {
 	if !wallet.ValidateAddress(address) {
 		return ("Address is not Valid")
 	}
-	chain := blockchain.ContinueBlockChain(nodeID)
-	UTXOSet := blockchain.UTXOSet{chain}
+	chain := blockchain.ContinueBlockChain(nodeID, basePath)
+	UTXOSet := blockchain.UTXOSet{Blockchain: chain}
 	defer chain.Database.Close()
 
 	balance := 0
@@ -186,7 +186,7 @@ func GetBalance(address, nodeID string) (output string) {
 	return strconv.Itoa(balance)
 }
 
-func Send(from, to string, amount int, nodeID string, mineNow bool) (output string) {
+func Send(from, to string, amount int, nodeID, basePath string, mineNow bool) (output string) {
 	defer func() {
 		if err := recover(); err != nil {
 			log.Println(err)
@@ -200,11 +200,11 @@ func Send(from, to string, amount int, nodeID string, mineNow bool) (output stri
 	if !wallet.ValidateAddress(from) {
 		return ("Address is not Valid")
 	}
-	chain := blockchain.ContinueBlockChain(nodeID)
-	UTXOSet := blockchain.UTXOSet{chain}
+	chain := blockchain.ContinueBlockChain(nodeID, basePath)
+	UTXOSet := blockchain.UTXOSet{Blockchain: chain}
 	defer chain.Database.Close()
 
-	wallets, err := wallet.CreateWallets(nodeID)
+	wallets, err := wallet.CreateWallets(nodeID, basePath)
 	if err != nil {
 		log.Panic(err)
 	}
@@ -224,38 +224,37 @@ func Send(from, to string, amount int, nodeID string, mineNow bool) (output stri
 	return ("Success!")
 }
 
+// func StartNodeStream(nodeID, minerAddress string) (output string)  { // TODO - allow for bootstrap Addresses as extra params (no flag) or with a flagh but allow for multiple addresses
 
-func StartNodeStream(nodeID, minerAddress string) (output string)  { // TODO - allow for bootstrap Addresses as extra params (no flag) or with a flagh but allow for multiple addresses
+// 	defer func() {
+// 		if err := recover(); err != nil {
+// 			log.Println(err)
+// 			output = fmt.Sprintf("%v", err)
+// 		}
+// 	}()
 
-	defer func() {
-		if err := recover(); err != nil {
-			log.Println(err)
-			output = fmt.Sprintf("%v", err)
-		}
-	}()
+// 	fmt.Printf("Starting Node %s\n", nodeID)
 
-	fmt.Printf("Starting Node %s\n", nodeID)
+// 	if len(minerAddress) > 0 {
+// 		if wallet.ValidateAddress(minerAddress) {
+// 			fmt.Println("Mining is on. Address to receive rewards: ", minerAddress)
+// 		} else {
+// 			log.Panic("Wrong miner address!")
+// 		}
+// 	}
+// 	// network.StartServer(nodeID, minerAddress)
 
-	if len(minerAddress) > 0 {
-		if wallet.ValidateAddress(minerAddress) {
-			fmt.Println("Mining is on. Address to receive rewards: ", minerAddress)
-		} else {
-			log.Panic("Wrong miner address!")
-		}
-	}
-	// network.StartServer(nodeID, minerAddress)
+// 	host, err := network.ExternalIP()
+// 	network.HandleError(err)
+// 	address := ""
+// 	port, err := strconv.Atoi(nodeID)
+// 	network.HandleError(err)
+// 	bootstrapAddresses := []string{}
+// 	// FIXME - temp server node .. always connected .. needed for other to join the network. (bootstrap)
+// 	if nodeID != "4000" {
+// 		bootstrapAddresses = []string{"[2a02:8084:a5bf:f680:1cfd:d24c:82aa:834]:2000"} //[]string{"[2a02:8084:a5bf:f680:1cfd:d24c:82aa:834]:4000"}
+// 	}
+// 	network.StartServer(host, uint16(port), address, minerAddress, basePath, bootstrapAddresses)
 
-	host, err := network.ExternalIP()
-	network.HandleError(err)
-	address := ""
-	port, err := strconv.Atoi(nodeID)
-	network.HandleError(err)
-	bootstrapAddresses := []string{}
-	// FIXME - temp server node .. always connected .. needed for other to join the network. (bootstrap)
-	if nodeID != "4000" {
-		bootstrapAddresses = []string{"[2a02:8084:a5bf:f680:1cfd:d24c:82aa:834]:2000"} //[]string{"[2a02:8084:a5bf:f680:1cfd:d24c:82aa:834]:4000"}
-	}
-	network.StartServer(host, uint16(port), address, minerAddress, bootstrapAddresses)
-
-	return
-}
+// 	return
+// }

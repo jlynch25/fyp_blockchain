@@ -91,7 +91,7 @@ type Version struct {
 }
 
 // StartServer function
-func StartServer(hostFlag net.IP, portFlag uint16, addressFlag, minerAddress string, bootstrapAddresses []string) {
+func StartServer(hostFlag net.IP, portFlag uint16, addressFlag, minerAddressNew, basePath string, bootstrapAddresses []string) {
 
 	// Create a new configured node.
 	node, err := noise.NewNode(
@@ -106,9 +106,9 @@ func StartServer(hostFlag net.IP, portFlag uint16, addressFlag, minerAddress str
 
 	Node = node
 
-	minerAddress = minerAddress //TODO - miners pool
+	minerAddress = minerAddressNew //TODO - miners pool
 
-	chain = blockchain.ContinueBlockChain(fmt.Sprint(portFlag)) //FIXME Node.ID().Port??? //uint16 to string
+	chain = blockchain.ContinueBlockChain(fmt.Sprint(portFlag), basePath) //FIXME Node.ID().Port??? //uint16 to string
 	defer chain.Database.Close()
 	go CloseDB(chain)
 
@@ -353,7 +353,7 @@ func HandleBlock(request []byte) {
 
 		blocksInTransit = blocksInTransit[1:]
 	} else {
-		UTXOSet := blockchain.UTXOSet{chain}
+		UTXOSet := blockchain.UTXOSet{Blockchain: chain}
 		UTXOSet.Reindex()
 	}
 }
@@ -449,7 +449,7 @@ func MineTx() {
 	txs = append(txs, cbTx)
 
 	newBlock := chain.MineBlock(txs)
-	UTXOSet := blockchain.UTXOSet{chain}
+	UTXOSet := blockchain.UTXOSet{Blockchain: chain}
 	UTXOSet.Reindex()
 
 	fmt.Println("New BLock mined")

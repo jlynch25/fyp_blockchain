@@ -10,6 +10,7 @@ require (
 	github.com/smartystreets/goconvey v1.6.4 // indirect
 	golang.org/x/crypto v0.0.0-20200622213623-75b288015ac9
 	golang.org/x/mobile v0.0.0-20210220033013-bdb1ca9a1e08 // indirect
+	// golang.org/x/mobile v0.0.0-20210220033013-bdb1ca9a1e08 // indirect
 	// golang.org/x/mobile/app v0.0.0-20200801112145-973feb4309de // indirect
 	golang.org/x/sys v0.0.0-20210124154548-22da62e12c0c // indirect
 	golang.org/x/tools v0.0.0-20201116002733-ac45abd4c88c // indirect

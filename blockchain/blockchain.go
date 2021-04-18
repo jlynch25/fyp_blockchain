@@ -20,8 +20,8 @@ import (
 const (
 	// basePath = "/data/data/com.github.jlynch25.mylib_example/files"
 	// basePath    = "/Internal storage/storage/emulated/0"
-	basePath    = "/data/user/0/com.github.jlynch25.mylib_example/app_flutter"
-	dbPath      = basePath + "/tmp/blocks_%s/"
+	// basePath    = "/data/user/0/com.github.jlynch25.mylib_example/app_flutter"
+	dbPath      =  "/tmp/blocks_%s/"
 	genesisData = "First Transaction from Genesis"
 )
 
@@ -40,11 +40,11 @@ func DBexists(path string) bool {
 }
 
 // ContinueBlockChain function
-func ContinueBlockChain(nodeID string) *BlockChain {
+func ContinueBlockChain(nodeID, basePath string) *BlockChain {
 	if _, err := os.Stat(basePath + "tmp"); os.IsNotExist(err) {
 		os.Mkdir(basePath+"tmp", 0755)
 	}
-	path := fmt.Sprintf(dbPath, nodeID)
+	path := fmt.Sprintf(basePath + dbPath, nodeID)
 	if DBexists(path) == false {
 		fmt.Println("No existing blockchain found, create one!")
 		// TODO - get blockchaiin files
@@ -77,9 +77,9 @@ func ContinueBlockChain(nodeID string) *BlockChain {
 }
 
 // InitBlockChain  function
-func InitBlockChain(address, nodeID string) *BlockChain {
+func InitBlockChain(address, nodeID, basePath string) *BlockChain {
 	var lastHash []byte
-	path := fmt.Sprintf(dbPath, nodeID)
+	path := fmt.Sprintf(basePath + dbPath, nodeID)
 	fmt.Printf("path: %s\n", path)
 	if DBexists(path) {
 		fmt.Println(" BLockchain already exists")

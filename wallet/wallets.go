@@ -12,8 +12,8 @@ import (
 const (
 	// basePath = "/data/data/com.github.jlynch25.mylib_example/files"
 	// basePath = "/Internal storage/storage/emulated/0"
-	basePath   = "/data/user/0/com.github.jlynch25.mylib_example/app_flutter"
-	walletFile = basePath + "/tmp/wallets_%s.data"
+	// basePath   = "/data/user/0/com.github.jlynch25.mylib_example/app_flutter"
+	walletFile =  "/tmp/wallets_%s.data"
 	// walletFile = "/tmp/wallets_%s.data"
 )
 
@@ -23,11 +23,11 @@ type Wallets struct {
 }
 
 // CreateWallets function
-func CreateWallets(nodeID string) (*Wallets, error) {
+func CreateWallets(nodeID, basePath string) (*Wallets, error) {
 	wallets := Wallets{}
 	wallets.Wallets = make(map[string]*Wallet)
 
-	err := wallets.LoadFile(nodeID)
+	err := wallets.LoadFile(nodeID, basePath)
 
 	return &wallets, err
 }
@@ -59,11 +59,11 @@ func (ws *Wallets) GetWallet(address string) Wallet {
 }
 
 // LoadFile function
-func (ws *Wallets) LoadFile(nodeID string) error {
+func (ws *Wallets) LoadFile(nodeID, basePath string) error {
 	if _, err := os.Stat(basePath + "tmp"); os.IsNotExist(err) {
 		os.Mkdir(basePath+"tmp", 0755)
 	}
-	walletFile := fmt.Sprintf(walletFile, nodeID)
+	walletFile := fmt.Sprintf(basePath + walletFile, nodeID)
 	if _, err := os.Stat(walletFile); os.IsNotExist(err) {
 		return err
 	}
@@ -83,9 +83,9 @@ func (ws *Wallets) LoadFile(nodeID string) error {
 }
 
 // SaveFile function
-func (ws *Wallets) SaveFile(nodeID string) {
+func (ws *Wallets) SaveFile(nodeID, basePath string) {
 	var content bytes.Buffer
-	walletFile := fmt.Sprintf(walletFile, nodeID)
+	walletFile := fmt.Sprintf(basePath + walletFile, nodeID)
 
 	gob.Register(elliptic.P256())
 
