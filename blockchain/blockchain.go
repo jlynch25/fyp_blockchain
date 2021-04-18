@@ -18,8 +18,9 @@ import (
 )
 
 const (
-	basePath = "/data/data/com.github.jlynch25.mylib_example/files"
+	// basePath = "/data/data/com.github.jlynch25.mylib_example/files"
 	// basePath    = "/Internal storage/storage/emulated/0"
+	basePath    = "/data/user/0/com.github.jlynch25.mylib_example/app_flutter"
 	dbPath      = basePath + "/tmp/blocks_%s/"
 	genesisData = "First Transaction from Genesis"
 )

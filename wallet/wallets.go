@@ -10,9 +10,11 @@ import (
 )
 
 const (
-	basePath = "/data/data/com.github.jlynch25.mylib_example/files"
+	// basePath = "/data/data/com.github.jlynch25.mylib_example/files"
 	// basePath = "/Internal storage/storage/emulated/0"
+	basePath   = "/data/user/0/com.github.jlynch25.mylib_example/app_flutter"
 	walletFile = basePath + "/tmp/wallets_%s.data"
+	// walletFile = "/tmp/wallets_%s.data"
 )
 
 // Wallets struct

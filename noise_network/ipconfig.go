@@ -39,5 +39,5 @@ func ExternalIP() (net.IP, error) {
 			}
 		}
 	}
-	return nil, errors.New("not connected to a network")
+	return nil, errors.New("not connected to a network to IPv6 address")
 }

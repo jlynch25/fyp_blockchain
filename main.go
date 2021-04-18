@@ -223,3 +223,39 @@ func Send(from, to string, amount int, nodeID string, mineNow bool) (output stri
 
 	return ("Success!")
 }
+
+
+func StartNodeStream(nodeID, minerAddress string) (output string)  { // TODO - allow for bootstrap Addresses as extra params (no flag) or with a flagh but allow for multiple addresses
+
+	defer func() {
+		if err := recover(); err != nil {
+			log.Println(err)
+			output = fmt.Sprintf("%v", err)
+		}
+	}()
+
+	fmt.Printf("Starting Node %s\n", nodeID)
+
+	if len(minerAddress) > 0 {
+		if wallet.ValidateAddress(minerAddress) {
+			fmt.Println("Mining is on. Address to receive rewards: ", minerAddress)
+		} else {
+			log.Panic("Wrong miner address!")
+		}
+	}
+	// network.StartServer(nodeID, minerAddress)
+
+	host, err := network.ExternalIP()
+	network.HandleError(err)
+	address := ""
+	port, err := strconv.Atoi(nodeID)
+	network.HandleError(err)
+	bootstrapAddresses := []string{}
+	// FIXME - temp server node .. always connected .. needed for other to join the network. (bootstrap)
+	if nodeID != "4000" {
+		bootstrapAddresses = []string{"[2a02:8084:a5bf:f680:1cfd:d24c:82aa:834]:2000"} //[]string{"[2a02:8084:a5bf:f680:1cfd:d24c:82aa:834]:4000"}
+	}
+	network.StartServer(host, uint16(port), address, minerAddress, bootstrapAddresses)
+
+	return
+}
