@@ -6,6 +6,7 @@ import (
 	"encoding/gob"
 	"fmt"
 	"io/ioutil"
+	"log"
 	"os"
 )
 
@@ -13,7 +14,7 @@ const (
 	// basePath = "/data/data/com.github.jlynch25.mylib_example/files"
 	// basePath = "/Internal storage/storage/emulated/0"
 	// basePath   = "/data/user/0/com.github.jlynch25.mylib_example/app_flutter"
-	walletFile =  "/tmp/wallets_%s.data"
+	walletFile = "/tmp/wallets_%s.data"
 	// walletFile = "/tmp/wallets_%s.data"
 )
 
@@ -55,6 +56,9 @@ func (ws *Wallets) GetAllAddresses() []string {
 
 // GetWallet function
 func (ws *Wallets) GetWallet(address string) Wallet {
+	if _, ok := ws.Wallets[address]; !ok {
+		log.Panic("Wallet does not exist on this device")
+	}
 	return *ws.Wallets[address]
 }
 
@@ -63,7 +67,7 @@ func (ws *Wallets) LoadFile(nodeID, basePath string) error {
 	if _, err := os.Stat(basePath + "tmp"); os.IsNotExist(err) {
 		os.Mkdir(basePath+"tmp", 0755)
 	}
-	walletFile := fmt.Sprintf(basePath + walletFile, nodeID)
+	walletFile := fmt.Sprintf(basePath+walletFile, nodeID)
 	if _, err := os.Stat(walletFile); os.IsNotExist(err) {
 		return err
 	}
@@ -85,7 +89,7 @@ func (ws *Wallets) LoadFile(nodeID, basePath string) error {
 // SaveFile function
 func (ws *Wallets) SaveFile(nodeID, basePath string) {
 	var content bytes.Buffer
-	walletFile := fmt.Sprintf(basePath + walletFile, nodeID)
+	walletFile := fmt.Sprintf(basePath+walletFile, nodeID)
 
 	gob.Register(elliptic.P256())
 
